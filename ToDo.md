@@ -1,15 +1,15 @@
 # ToDo
 
-## CommonClaude.md에 테스트 규칙 섹션 추가
+## Task Management 섹션에 명령 입력 형태 규칙 추가
 
 ### 배경
-코드 테스트 시 품질을 보장하기 위한 규칙을 CommonClaude.md에 추가한다.
+사용자의 작업 요청을 받을 때 명령이 명시적인지, 참고 자료가 있는지를 항상 확인하는 규칙을 추가한다.
 
 ### 할 일
 
-- [x] CommonClaude.md에 Section 4: Testing Rules 추가
-  - [x] 규칙 1: 매직넘버로 테스트를 통과시키지 않을 것
-  - [x] 규칙 2: 테스트 코드에 맞춘 하드코딩으로 테스트를 통과시키지 않을 것
-  - [x] 규칙 3: 코드 품질을 우선시할 것
+- [x] CommonClaude.md Section 3: Task Management에 명령 입력 형태 규칙 추가
+  - [x] 규칙: 명령이 명시적인지 확인
+  - [x] 규칙: 참고 자료(PDF, 웹사이트) 유무 확인
+- [x] Workflow에 GitHub 이슈 업데이트 단계 추가
 - [x] GitHub 이슈 등록
 - [ ] 커밋 및 푸시
