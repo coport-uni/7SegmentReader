@@ -94,9 +94,36 @@ Review this entire codebase ultrathink
 
 ---
 
+## Cowork Session Rules (`CLAUDECowork.md`)
+
+[`CLAUDECowork.md`](CLAUDECowork.md) defines rules specific to the Cowork workspace session.
+
+### Expense Report Preparation
+
+Rules for writing research expense reports under `서류 작업/`:
+- Extract item names, quantities, amounts, and dates from transaction statements, quotes, and card receipts (PDF)
+- Fields to update: date, amount (formatted as `"315,000 원"`), usage details (`"{item} 외 {count}건"`)
+- Protected fields (names, budget codes, affiliations) must not be changed
+- Verify against source PDFs after completion, then back up to the designated archive path
+
+### ToDo Workflow
+
+- Write a new entry in `ToDo.md` **before** starting any task (append only, never delete)
+- Get user approval before executing
+- Check off items as they are completed; keep all history intact
+
+### Mail Reply Rules
+
+- Use `DocumentMailReply.md` as the reply template
+- Replace the `{friendly name}` placeholder with the sender's first name
+- Always show the draft to the user and get approval **before** sending
+
+---
+
 ## References
 
 - Full rules: [`CommonClaude.md`](CommonClaude.md)
+- Cowork rules: [`CLAUDECowork.md`](CLAUDECowork.md)
 - Debug file index: [`claude_test/README.md`](claude_test/README.md)
 - [ClaudeCode for vscode](https://code.claude.com/docs/en/vs-code#extension-settings)
 - [클로드 코드를 활용한 바이브 코딩 완벽입문](https://product.kyobobook.co.kr/detail/S000219349783)
