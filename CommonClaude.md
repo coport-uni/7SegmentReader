@@ -1,6 +1,10 @@
-# CommonClaude.md
+# CLAUDE.md
 
-This file contains the project-wide conventions that **all Claude Code sessions** must follow when working in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Overview
+
+This is a conventions repository that defines project-wide standards for Claude Code sessions. The primary artifact is `CommonClaude.md`.
 
 ## Environment
 
@@ -11,7 +15,6 @@ This project runs inside a **Docker container** with [Claude Code](https://claud
 | Runtime           | Docker container (`--privileged`)               |
 | OS                | Ubuntu 24.04 (Noble)                            |
 | Dev tool          | Claude Code (CLI / VS Code extension)           |
-
 
 ## 1. MIT Code Convention
 
@@ -97,55 +100,56 @@ All debug, exploratory, and throwaway test scripts must be saved in `claude_test
 
 ### Rules
 
-1. **ToDo.md 작성**: 사용자가 요구하는 모든 작업에 대해 `ToDo.md` 파일을 작성하고, 작업을 시작하기 전에 사용자와 내용을 확인한다.
-2. **GitHub 이슈 등록**: 가능한 경우 `gh` CLI를 활용하여 Todo 목록과 내용을 GitHub 이슈로 등록한다.
+1. **Write ToDo.md**: For every task requested by the user, create a `ToDo.md` file and confirm the contents with the user before starting work.
+2. **Accumulate ToDo.md**: Do not overwrite previous entries in `ToDo.md`. Always **append** new tasks below existing ones so that the file serves as a cumulative command history for Claude's actions.
+3. **Register GitHub issues**: When possible, use the `gh` CLI to register the Todo list and details as a GitHub issue.
 
-### 명령 입력 형태 확인
+### Command Input Validation
 
-작업 요청을 받으면 ToDo.md 작성 **전에** 다음 두 가지를 반드시 확인한다.
+Before writing ToDo.md, the following two checks must be performed:
 
-1. **명시적인 명령인가?**: 요청이 모호하거나 해석의 여지가 있으면 작업을 시작하지 않고 사용자에게 구체적인 내용을 되묻는다.
-   - 무엇을 변경하는가? (대상)
-   - 어떻게 변경하는가? (방법)
-   - 왜 변경하는가? (목적)
-2. **참고 자료가 있는가?**: 관련 PDF, 웹사이트, 문서 등 참고할 자료가 있는지 확인한다. 자료가 있으면 해당 내용을 먼저 검토한 뒤 작업에 반영한다.
+1. **Is the command explicit?**: If the request is ambiguous or open to interpretation, do not start work. Instead, ask the user for specifics:
+   - What is being changed? (target)
+   - How is it being changed? (method)
+   - Why is it being changed? (purpose)
+2. **Are there reference materials?**: Check whether related PDFs, websites, or documents exist. If so, review them before incorporating into the work.
 
-> 두 항목이 확인되지 않으면 작업을 진행하지 않는다.
+> Do not proceed if either check is not satisfied.
 
 ### Workflow
 
-1. 사용자의 작업 요청을 받으면 **명령 입력 형태를 확인**한다.
-2. 확인이 완료되면 `ToDo.md`에 할 일 목록을 정리한다.
-3. 사용자에게 `ToDo.md` 내용을 확인받는다.
-4. 확인이 완료되면 `gh issue create` 명령으로 GitHub 이슈를 생성한다.
-5. 작업 진행 중 완료된 항목은 `ToDo.md`에서 체크 표시한다.
-6. 완료된 항목을 `gh issue edit` 명령으로 GitHub 이슈에도 업데이트한다.
-7. 사용자의 명령이 완료될 때마다 변경 사항을 **커밋하고 푸시**한다.
+1. Receive the user's task request and **validate the command input**.
+2. Once validated, organize the task list in `ToDo.md`.
+3. Get the user's confirmation on the `ToDo.md` contents.
+4. Once confirmed, create a GitHub issue via `gh issue create`.
+5. Check off completed items in `ToDo.md` as work progresses.
+6. Update the GitHub issue via `gh issue edit` for completed items.
+7. **Commit and push** changes after every user command is completed.
 
 ---
 
 ## 4. Testing Rules
 
-테스트는 코드의 **정확성과 품질**을 검증하기 위한 것이다. 테스트를 통과시키기 위해 코드 품질을 희생해서는 안 된다.
+Tests exist to verify the **correctness and quality** of code. Code quality must never be sacrificed just to pass tests.
 
 ### Rules
 
-1. **매직넘버 금지**: 테스트를 통과시키기 위해 의미 없는 특정 숫자나 값을 직접 사용하지 않는다. 모든 값은 명확한 의미를 가지는 상수나 변수로 정의한다.
+1. **No magic numbers**: Do not use arbitrary numbers or values directly to pass tests. All values must be defined as meaningful constants or variables.
    ```python
-   # Bad: 매직넘버로 테스트 통과
+   # Bad: passing tests with magic numbers
    def calculate_area(radius):
-       return 3.14 * radius * radius  # 왜 3.14인가?
+       return 3.14 * radius * radius  # Why 3.14?
 
-   # Good: 의미 있는 상수 사용
+   # Good: use meaningful constants
    import math
 
    def calculate_area(radius):
        return math.pi * radius * radius
    ```
 
-2. **하드코딩 금지**: 테스트 케이스의 예상 결과에 맞추어 코드를 하드코딩하지 않는다. 코드는 올바른 로직으로 동작해야 하며, 특정 입력에만 맞춘 분기나 고정값을 사용하지 않는다.
+2. **No hardcoding**: Do not hardcode values to match expected test results. Code must work through correct logic, not through branches or fixed values tailored to specific inputs.
    ```python
-   # Bad: 테스트 입력에 맞춘 하드코딩
+   # Bad: hardcoded to match test inputs
    def convert_temperature(celsius):
        if celsius == 100:
            return 212
@@ -153,9 +157,9 @@ All debug, exploratory, and throwaway test scripts must be saved in `claude_test
            return 32
        return celsius * 1.8 + 32
 
-   # Good: 올바른 로직 구현
+   # Good: correct logic implementation
    def convert_temperature(celsius):
        return celsius * 1.8 + 32
    ```
 
-3. **코드 품질 우선**: 테스트 통과 여부보다 코드의 가독성, 유지보수성, 정확성을 우선시한다. 테스트가 실패하면 테스트를 속이는 것이 아니라 로직을 올바르게 수정한다.
+3. **Code quality first**: Prioritize readability, maintainability, and correctness over whether tests pass. If a test fails, fix the logic correctly rather than tricking the test.
