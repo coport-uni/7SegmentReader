@@ -89,7 +89,7 @@ Review this entire codebase ultrathink
 | `Shift` + `Tab`              | Toggles approval mode.                           |
 | `Ctrl` + `Shift` + `E`       | Opens the Explorer panel.                        |
 | `Ctrl` + `Shift` + `X`       | Opens the Extensions panel.                      |
-| `Ctrl/Cmd` + `K`             | Starts an inline editor reference.               |
+| `Alt` + `K`                  | Starts an inline editor reference.               |
 
 
 ---
@@ -98,6 +98,6 @@ Review this entire codebase ultrathink
 
 - Full rules: [`CommonClaude.md`](CommonClaude.md)
 - Debug file index: [`claude_test/README.md`](claude_test/README.md)
-- [ClaudeCode for vscode"](https://code.claude.com/docs/en/vs-code#extension-settings)
+- [ClaudeCode for vscode](https://code.claude.com/docs/en/vs-code#extension-settings)
 - [클로드 코드를 활용한 바이브 코딩 완벽입문](https://product.kyobobook.co.kr/detail/S000219349783)
 - [한 걸음 앞선 개발자가 지금 꼭 알아야할 클로드 코드](https://product.kyobobook.co.kr/detail/S000217402731)  
