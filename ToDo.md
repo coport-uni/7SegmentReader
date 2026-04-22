@@ -147,10 +147,12 @@ Bundled with Tasks 1 and 2 under issue #14 per user decision.
 
 ### Task 5. Phase 0-1 diagnosis and (abridged) pattern extraction
 Risk: low. Rollback: discard draft file.
-- [ ] Document diagnosis outcome: sample < 10, Phase 1 extraction
-      is skipped per Concept.md L99-101
-- [ ] Produce a short seed list of candidate patterns from the
-      four Completed tasks (workflow-level lessons only)
+Tracked under issue #16.
+- [x] Document diagnosis outcome: sample < 10, Phase 1 extraction
+      skipped per Concept.md L99-101 (recorded in #16 body)
+- [x] Produce a short seed list of candidate patterns from the
+      four Completed tasks plus current session — five
+      workflow-level lessons L1-L5 (recorded in #16 body)
 - [ ] **[APPROVAL]** Review seed list before Task 6 creates the
       actual `LearnedPatterns.md`
 
@@ -168,17 +170,19 @@ Risk: low. Rollback: delete file + `git revert` CLAUDE.md.
 ### Task 7. Add secret-scan and env-file-guard hooks
 Risk: medium (false positives can block legitimate work).
 Rollback: disable in `settings.json` + `git revert` scripts.
-- [ ] Write `.claude/hooks/pre-bash-secret-scan.sh` blocking
+- [x] Write `.claude/hooks/pre-bash-secret-scan.sh` blocking
       Bash commands that contain `sk-`, `ghp_`, `AKIA`, or
-      obvious password literals
-- [ ] Write `.claude/hooks/pre-read-envfile-guard.sh` blocking
-      reads of `.env`, `.pem`, `.key`
-- [ ] Add fixture scripts under `claude_test/` exercising both
-      allow and block paths; update `claude_test/README.md`
-- [ ] Wire both hooks into `.claude/settings.json` under
+      obvious password literals (expanded to cover more vendor
+      prefixes and `api_key=` / `access_token=` / etc.)
+- [x] Write `.claude/hooks/pre-read-env-guard.sh` blocking
+      reads of `.env`, `.pem`, `.key` (renamed from
+      `pre-read-envfile-guard.sh` per user 2026-04-22)
+- [x] ~~Add fixture scripts under `claude_test/`~~ dropped per
+      user 2026-04-22; manual verification scenarios used instead
+- [x] Wire both hooks into `.claude/settings.json` under
       `PreToolUse` with matchers `Bash` and `Read` respectively
-- [ ] **[APPROVAL]** Demonstrate block behaviour on fixtures
-- [ ] GitHub issue register
+- [x] **[APPROVAL]** Demonstrated block behaviour live in session
+- [x] GitHub issue register (#15)
 - [ ] Commit and push
 - [ ] GitHub issue update
 
@@ -200,3 +204,43 @@ Rollback: disable in `settings.json` + `git revert` scripts.
 - [x] Commit and push draft (84d99f5)
 - [x] User approved plan; Tasks 1+2+4 bundle executed in aa15cb9
 - [x] Umbrella issue updated to reflect bundle closure
+
+---
+
+## Task 7 execution: secret-scan and env-file-guard hooks
+
+### Background
+Executing Task 7 from the umbrella plan (#13). Scope refinements
+agreed with the user on 2026-04-22:
+- Rename `pre-read-envfile-guard.sh` -> `pre-read-env-guard.sh`
+  to match the user's preferred filename.
+- Expand Bash scan to include `api_key=` literal in addition to
+  `sk-`, `ghp_`, `AKIA`, `password=`.
+- Drop `claude_test/` fixtures; use manual verification scenarios
+  supplied by the assistant.
+
+Verification strings such as `sk-test1234567890abcdef` are
+illustrative test tokens, not real credentials.
+
+### Work items
+- [x] Write `.claude/hooks/pre-bash-secret-scan.sh`
+- [x] Write `.claude/hooks/pre-read-env-guard.sh`
+- [x] `chmod +x` both scripts
+- [x] Register both hooks in `.claude/settings.json`
+- [x] Manual verification: `sk-*`, `ghp_*`, `password=`, `api_key=`
+      blocked via Bash; `.env` blocked via Read; benign `ls`
+      command and `README.md` read pass through
+- [x] GitHub issue register (#15)
+- [ ] Commit and push
+- [ ] GitHub issue update and tick remaining Task 7 boxes
+
+### Side fix
+- [x] Install `jq` via apt; the existing three hooks also depend on
+      it and were silently no-op'd before this fix.
+
+### Scope notes
+Bash pattern set finalized as: `sk-`, `ghp_`, `gho_`, `ghu_`, `ghs_`,
+`github_pat_`, `AKIA*`, `AIza*`, `xox[baprs]-*`, `glpat-*`, plus
+generic literal assignments `password=`, `api_key=`, `access_token=`,
+`secret_key=`, `auth_token=`. Expanded beyond the original five per
+user direction "암호 뿐만 아니라 API 키도 거부하도록".
