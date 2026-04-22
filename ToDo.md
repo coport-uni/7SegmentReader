@@ -153,8 +153,10 @@ Tracked under issue #16.
 - [x] Produce a short seed list of candidate patterns from the
       four Completed tasks plus current session — five
       workflow-level lessons L1-L5 (recorded in #16 body)
-- [ ] **[APPROVAL]** Review seed list before Task 6 creates the
-      actual `LearnedPatterns.md`
+- [x] Superseded by #19 which applied the full §10 Bootstrap
+      extraction across all ToDo.md Completed items; seed list
+      content preserved in LearnedPatterns.md §4 Workflow Lessons
+      (commit 24b6349). #16 closed 2026-04-22.
 
 ### Task 6. Create LearnedPatterns.md and wire it into CLAUDE.md
 Risk: low. Rollback: delete file + `git revert` CLAUDE.md.
@@ -332,5 +334,5 @@ Tracked under issue #19.
 - [x] Write `LearnedPatterns.md` in repo root with 15 patterns
       across §1-§5 plus a §99 Uncategorized residual
 - [x] GitHub issue register (#19)
-- [ ] Commit and push
-- [ ] GitHub issue update
+- [x] Commit and push (24b6349)
+- [x] GitHub issue update (#19 closed)
