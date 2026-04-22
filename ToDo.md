@@ -183,8 +183,8 @@ Rollback: disable in `settings.json` + `git revert` scripts.
       `PreToolUse` with matchers `Bash` and `Read` respectively
 - [x] **[APPROVAL]** Demonstrated block behaviour live in session
 - [x] GitHub issue register (#15)
-- [ ] Commit and push
-- [ ] GitHub issue update
+- [x] Commit and push (72fef2c — landed alongside Task 5 update)
+- [x] GitHub issue update (#15 closed)
 
 ### Task Ordering and Independence
 - Tasks 1, 2, 4 are independent and may be executed in any order.
@@ -231,8 +231,8 @@ illustrative test tokens, not real credentials.
       blocked via Bash; `.env` blocked via Read; benign `ls`
       command and `README.md` read pass through
 - [x] GitHub issue register (#15)
-- [ ] Commit and push
-- [ ] GitHub issue update and tick remaining Task 7 boxes
+- [x] Commit and push (72fef2c)
+- [x] GitHub issue update and tick remaining Task 7 boxes
 
 ### Side fix
 - [x] Install `jq` via apt; the existing three hooks also depend on
