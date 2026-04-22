@@ -311,5 +311,26 @@ so future sessions do not misread the rule. Tracked under issue
 ### Work items
 - [x] Add `ToDo.md checkbox updates` subsection under §8
 - [x] GitHub issue register (#20)
+- [x] Commit and push (17dee39)
+- [x] GitHub issue update (#20 closed)
+
+---
+
+## Task 6 Part B — generate LearnedPatterns.md
+
+### Background
+Executes the §10 Learned Patterns Bootstrap procedure (added in
+commit 4628a61, §7 at the time, §10 after restructure b2a39a1) to
+materialize `LearnedPatterns.md` in the repo root. Classifies every
+`[x]` item across `ToDo.md` into §1-§5 plus §99 per the bootstrap
+rules. Task 5 seed list (#16) feeds into §4 Workflow Lessons but
+the full analysis scans every Completed item, not just that seed.
+Tracked under issue #19.
+
+### Work items
+- [x] Classify every `[x]` item in `ToDo.md` per CLAUDE.md §10
+- [x] Write `LearnedPatterns.md` in repo root with 15 patterns
+      across §1-§5 plus a §99 Uncategorized residual
+- [x] GitHub issue register (#19)
 - [ ] Commit and push
 - [ ] GitHub issue update
