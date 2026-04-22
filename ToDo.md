@@ -336,3 +336,22 @@ Tracked under issue #19.
 - [x] GitHub issue register (#19)
 - [x] Commit and push (24b6349)
 - [x] GitHub issue update (#19 closed)
+
+---
+
+## Concept.md coverage verification
+
+### Background
+User asked whether every recommendation in `Concept.md` has been
+reflected in the repo. This task cross-checks Concept.md's two parts
+(Part 1 items 1-7, Part 2 Phase 0-5) and the final application order
+L197-204 against landed commits, surfacing any gaps for decision.
+Tracked under issue #21.
+
+### Work items
+- [x] Map each Concept.md recommendation to a commit or decision
+- [x] Produce Done / Partial / Deferred table
+- [x] Identify remaining gaps for user decision
+- [x] GitHub issue register (#21)
+- [ ] Commit and push
+- [ ] GitHub issue update
