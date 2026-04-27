@@ -402,8 +402,8 @@ strict-mask intermediate (segment g of digit 3 is clearly lit).
 - [x] Verify reference image `dev_video6_640x480.jpg` still decodes
       to V=00.01 / A=0.000
 - [x] GitHub issue register (#5)
-- [ ] Commit and push
-- [ ] GitHub issue update
+- [x] Commit and push (a6f7d5e)
+- [x] GitHub issue update (#5 closed via commit message)
 
 ---
 
@@ -417,9 +417,9 @@ inspected outside the eval script.
 ### Work items
 - [x] Extend `claude_test/eval_segmenttest.py` to also write a CSV
 - [x] Generate `segmenttest_results.csv` at the repo root
-- [ ] GitHub issue register
-- [ ] Commit and push
-- [ ] GitHub issue update
+- [x] GitHub issue register (folded into #5 / #6 commit a6f7d5e)
+- [x] Commit and push (a6f7d5e)
+- [x] GitHub issue update (#5 closed)
 
 ---
 
@@ -441,9 +441,9 @@ section is appended without disturbing that content.
       stage (red score, STRICT + hole-fill, LOOSE, blob clustering,
       italic-aware segment sampling, decimal probe)
 - [x] Link the SegmentTest accuracy CSV
-- [ ] GitHub issue register
-- [ ] Commit and push
-- [ ] GitHub issue update
+- [x] GitHub issue register (#6)
+- [x] Commit and push (a6f7d5e)
+- [x] GitHub issue update (#6 closed via commit message)
 
 ---
 
