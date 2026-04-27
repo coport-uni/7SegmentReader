@@ -355,3 +355,78 @@ Tracked under issue #21.
 - [x] GitHub issue register (#21)
 - [ ] Commit and push
 - [ ] GitHub issue update
+
+---
+
+> NOTE: Entries below this line reference issues on
+> `coport-uni/7SegmentReader`, not on `coport-uni/CommonClaude`.
+> The local repo was bootstrapped from CommonClaude conventions but
+> the project-specific work targets 7SegmentReader.
+
+---
+
+## Multi-camera device identifier (camera_finder.py)
+
+### Background
+컨테이너에 RealSense, Logitech C922, HikVision (v4l2loopback)이 동시에
+연결되어 `/dev/video0..20`에 11개 노드가 노출됨. 어느 device가 어느 물리
+카메라인지 시각적으로 매핑할 도구가 필요. OpenCV로 각 노드 한 프레임씩
+캡처하여 device 경로명을 그대로 파일명에 박아 저장.
+
+### Work items
+- [x] `camera_finder.py` 작성 — V4L2 backend, warmup 5 frames, output
+      `camera_samples/dev_videoN_WxH.jpg`
+- [x] `python3-venv` 셋업 + `opencv-python-headless` 설치 (PEP 668 우회)
+- [x] 1차 실행: 11개 중 5개 device 성공 (RealSense ×2, HikVision ×3),
+      C922(/dev/video6,7) open-failed
+- [x] Sub-issue #1 (C922 정상화) 별도 처리 후 closed
+- [x] 2차 실행: 6/11 success — `dev_video6_640x480.jpg` 추가 확보
+- [x] GitHub issue register (#2)
+- [x] Commit and push
+- [x] GitHub issue update
+
+---
+
+## 7-segment LED reader for DC power supply (7segment_reader.py)
+
+### Background
+`camera_samples/dev_video6_640x480.jpg` (C922 촬영 DC power supply LED
+디스플레이)에서 V/A 값 자동 인식. 사용자가 ssocr 후보를 검토했으나, 글레어 /
+tilt 조건상 OpenCV 전처리가 정확도의 80%를 결정하므로 hand-rolled
+7-segment decoder가 더 적합하다고 판단 (plan 승인 후 구현). 이슈 #3.
+
+### Work items
+- [x] OCR 후보 평가 + plan 작성/승인
+      (`/root/.claude/plans/camera-samples-...quilt.md`)
+- [x] 1차 시도: HSV `inRange` 기반 mask → 글레어 미제거 + decimal point
+      검출 실패
+- [x] 2차 시도: `red_score = R - max(G, B)` 도입 → strict (score>100) /
+      loose (score>60) 듀얼 threshold로 digit과 dim feature 분리
+- [x] connected components 기반 digit blob 검출 + 7-segment lookup table
+      디코더 (`SEGMENT_TO_DIGIT`, `SEGMENT_REGIONS`)
+- [x] decimal point 검출: digit bbox 우하단 below-baseline probe의
+      loose-mask pixel count → row 내 outlier (max ≥ median × 2)가 점 위치
+- [x] `dev_video6_640x480.jpg`에서 `{"V": 0.01, "A": 0.0}` 정확 인식
+- [x] `ruff check` / `ruff format` clean (E501·N806·I001 수정 후)
+- [x] GitHub issue register (#3)
+- [x] Commit and push
+- [x] GitHub issue update
+
+---
+
+## Update ToDo.md and LearnedPatterns.md (session retrospective)
+
+### Background
+이번 세션 (camera_finder.py + 7segment_reader.py)에서 OpenCV LED 색
+분리, decimal point 검출, 컨테이너 venv 셋업 등에서 얻은 교훈을
+`LearnedPatterns.md`에 추가하고, 두 작업의 entry를 `ToDo.md`에 등록한다.
+`.gitignore`도 신규 작성 (`.venv/`, `debug/`, `SegmentTest/`,
+`__pycache__/`, `.ruff_cache/` 제외). 이슈 #4.
+
+### Work items
+- [x] `.gitignore` 신규 작성
+- [x] `ToDo.md`에 위 두 작업 + 본 회고 entry 추가
+- [x] `LearnedPatterns.md`에 §2 G5, §3 Q3·Q4·Q5, §4 W6·W7, §5 E4 추가
+- [x] GitHub issue register (#4)
+- [x] Commit and push
+- [x] GitHub issue update

@@ -2,8 +2,8 @@
 
 > Patterns extracted from `ToDo.md` Completed items. Consult the relevant sections before drafting new ToDo entries. Append new patterns after each task completes (see CLAUDE.md §9 Learned Patterns Reference).
 >
-> Last updated: 2026-04-22
-> Total patterns: 15
+> Last updated: 2026-04-27
+> Total patterns: 22
 >
 > Provenance format: `(from ToDo#N)` where N is the 1-based index of the top-level `##` section in `ToDo.md` at the time of extraction.
 
@@ -50,6 +50,13 @@
 - **Fix**: Used `gh issue comment` to attach trailing notes instead of a redundant close call.
 - **Rule**: Never chain `gh issue close` after a commit whose message already contains `Closes #N`; use `gh issue comment` for trailing notes. (from ToDo#5)
 
+### G5. LED halo bridges adjacent digits in low-threshold red masks
+
+- **Problem**: Lowering the red-mask threshold to capture dim decimal-point dots also caused two neighbouring `0` digits to merge into one connected component, breaking digit-by-digit decoding.
+- **Cause**: A bright LED segment leaks dim red light onto the surrounding region; with permissive thresholds the halos of adjacent digits touch and form a single blob.
+- **Fix**: Run **two** masks. STRICT (high threshold) gives clean isolated digit blobs for connected-components and segment sampling. LOOSE (low threshold) is used **only** for small-feature probes anchored to the strict bbox, never for re-running connected components on the whole row.
+- **Rule**: Never re-segment a full row with a permissive mask; permissive masks belong inside per-digit local probes. (from ToDo#13)
+
 ---
 
 ## §3. Library Quirks
@@ -67,6 +74,27 @@
 - **Cause**: The hook scans the full Bash `command` string before execution, including everything inside `<<'EOF' ... EOF` blocks.
 - **Fix**: Describe credential patterns with wildcards or obfuscated variants (for example `sk-*`, `ghp_*`) in Bash payloads. Keep literal test strings confined to file content written via Write or Edit.
 - **Rule**: Never embed literal credential prefixes in Bash command strings; such strings are safe only in files written via Write/Edit. (from ToDo#6)
+
+### Q3. HSV `inRange` for red is unreliable on bright LED + dark background
+
+- **Problem**: HSV-based red masking either let white glare/halo through (low S/V thresholds) or dropped dim decimal points (high thresholds), leaving no good operating point.
+- **Cause**: Halo and specular reflections share Hue with the LED but differ in saturation continuously; a single Hue/S/V box cannot separate them cleanly.
+- **Fix**: Compute `red_score = R - max(G, B)`. Pure red goes high; white/grey reflections go to ~0 by construction. Threshold in this scalar space instead of HSV.
+- **Rule**: For red LED on dark background, prefer `R - max(G, B)` purity over HSV `inRange`. Reach for HSV only when colour categories (red vs orange vs yellow) need to be separated. (from ToDo#13)
+
+### Q4. PEP 668 blocks `pip install` on the container's system Python
+
+- **Problem**: `pip install opencv-python-headless` failed with `error: externally-managed-environment` on Ubuntu 24.04 / Python 3.12.
+- **Cause**: The base image's system Python is marked externally-managed; `pip` refuses installs to avoid breaking apt-managed packages.
+- **Fix**: Create a venv at the project root (`python3 -m venv .venv`) and install everything inside it. Add `.venv/` to `.gitignore`.
+- **Rule**: Always use a project-local venv on this container; never `--break-system-packages`. (from ToDo#12)
+
+### Q5. 7-segment decimal-point position varies by display panel
+
+- **Problem**: Decimal points appeared in different physical locations across rows of the same display: the V-row dot sat inside the digit bbox at the lower-right corner, while the A-row dot extended below the baseline.
+- **Cause**: Each digit cell on a 7-seg LED has its own decimal LED, but the LED's offset relative to the segment grid is panel-specific and not standardised.
+- **Fix**: Detect decimals by per-digit ROI scoring rather than separate connected components. Probe a small window at the bbox's lower-right that extends slightly below the baseline; the digit whose probe count is the row's clear outlier (max ≥ median × 2 and above an absolute floor) carries the decimal.
+- **Rule**: For 7-seg OCR, never trust a fixed decimal-LED position; score every digit and pick the row outlier. (from ToDo#13)
 
 ---
 
@@ -97,6 +125,16 @@
 - **Lesson**: `Closes #N` in the commit body closes the referenced issue when the commit lands on the default branch; explicit `gh issue close` afterwards is redundant and errors.
 - **Rule**: Always write `Closes #N` (or `Refs #N` for partial work) in commit messages. Follow up with `gh issue comment` for trailing notes instead of `gh issue close`. (from ToDo#5)
 
+### W6. Preprocessing dominates accuracy in image OCR; engine choice is secondary
+
+- **Lesson**: When deciding between ssocr, Tesseract+letsgodigital, and DL OCR for a 7-segment display, the right choice depended almost entirely on whether the OpenCV preprocessing produced clean digit crops. Once preprocessing was solid, a 50-line hand-rolled segment decoder beat every off-the-shelf engine.
+- **Rule**: For OCR tasks, invest in preprocessing (colour separation, ROI, perspective rectification, glare removal) before reaching for a heavier engine. Validate that any chosen engine's *added value* survives once preprocessing is good. (from ToDo#13)
+
+### W7. Print 2-D pixel grids before tuning thresholds
+
+- **Lesson**: Several OCR debugging hours were saved by dumping a small ASCII grid of red-score values around suspicious areas (one cell per pixel: ` `, `.`, `+`, `X`). The grid revealed exactly where decimal LEDs sat, where halos bridged, and which thresholds would and would not separate them — questions that staring at threshold parameters could not answer.
+- **Rule**: When a CV pipeline misbehaves, dump a small ASCII pixel grid (or `cv2.imwrite` of the masked region) at the decision point before adjusting thresholds. Iterate from raw pixels to algorithm, not the other way. (from ToDo#13)
+
 ---
 
 ## §5. Environment Specifics
@@ -115,6 +153,11 @@
 
 - **Note**: Hooks are invoked from arbitrary working directories, so absolute paths must be derived from `$CLAUDE_PROJECT_DIR`.
 - **Rule**: Never hardcode a repo path in hook scripts; always reference `$CLAUDE_PROJECT_DIR`. (from ToDo#2)
+
+### E4. Multi-camera containers: `/dev/video*` does not name the camera
+
+- **Note**: This container exposes 11 `/dev/video*` nodes (RealSense ×6, C922 ×2, HikVision via v4l2loopback ×3) but the node index alone gives no clue which physical camera owns it. Several nodes are also depth/metadata secondaries that open() succeeds on but produce no frames.
+- **Rule**: Use `v4l2-ctl --list-devices` to map `/dev/videoN` → camera name before doing anything OpenCV-side. Treat capture failure on a node as "this is probably a metadata/depth node", not "the camera is broken". (from ToDo#12)
 
 ---
 

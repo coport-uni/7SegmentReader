@@ -1,0 +1,11 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# Project artifacts (intermediate / not source-of-truth)
+debug/
+
+# Ad-hoc capture buckets created by external tools
+SegmentTest/
