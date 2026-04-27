@@ -358,6 +358,95 @@ Tracked under issue #21.
 
 ---
 
+## 7segment_reader.py robustness on SegmentTest folder
+
+### Background
+`7segment_reader.py` was tuned to decode `camera_samples/dev_video6_640x480.jpg`
+but failed on most of the 31 photos in `SegmentTest/`. User goal: reach
+at least 90% accuracy across that folder while keeping the reference
+sample working.
+
+Three failure modes were identified and addressed in `7segment_reader.py`:
+
+1. **Hollow strict mask** -- bright LED segments saturate the camera
+   (R = G = B = 255) so `R - max(G, B) > 100` only marks the segment
+   outline. Segment-region sampling on a hollow ring under-counts.
+   Fix: `fill_small_holes` seals enclosed background components below
+   200 px (segment-internal voids ~80-150 px) while preserving genuine
+   digit interiors (digit 0 ~700-940 px, digit 8 halves ~240-340 px).
+2. **Italic font slant misaligns sample regions** -- vertical segments
+   like b, c, e, f drift horizontally over a digit's height. Fix: the
+   new `segment_ratio` shears each row of vertical-segment regions by
+   `slant * (h/2 - y)` (slant = 0.25), and translates horizontal
+   regions uniformly by the slant computed at their vertical centre so
+   bleed from segment c into segment d is suppressed for digits like 7.
+   `ON_THRESHOLD` lowered from 0.35 to 0.28 to absorb residual misalignment.
+3. **Decimal probe over-gated on the row median** -- italic segment c
+   tails creeping into other digits' lower-right probe windows raised
+   the row median, blocking legitimate dot insertion.
+   Fix: `DOT_RATIO_OVER_MEDIAN` lowered from 2.0 to 1.5.
+
+Ground truth correction made during verification: `2026-04-27-165347.jpg`
+ground truth corrected from `22.08` to `22.88` after inspecting the
+strict-mask intermediate (segment g of digit 3 is clearly lit).
+
+### Work items
+- [x] Establish ground truth for all 31 SegmentTest images
+- [x] Add `fill_small_holes` and call it from `read_display`
+- [x] Add `segment_ratio` with per-row shearing for vertical segments
+      and uniform shift for horizontal segments
+- [x] Tune `ON_THRESHOLD` (0.35 -> 0.28) and `DOT_RATIO_OVER_MEDIAN`
+      (2.0 -> 1.5)
+- [x] Verify `>= 90%` exact-match accuracy on SegmentTest folder
+      (achieved 28/31 = 90.3% both rows; V 30/31 = 96.8%, A 29/31 = 93.5%)
+- [x] Verify reference image `dev_video6_640x480.jpg` still decodes
+      to V=00.01 / A=0.000
+- [x] GitHub issue register (#5)
+- [ ] Commit and push
+- [ ] GitHub issue update
+
+---
+
+## Export SegmentTest ground truth vs prediction as CSV
+
+### Background
+After landing the robustness changes (issue #5), the user asked for a
+CSV summary so the per-image ground truth and prediction can be
+inspected outside the eval script.
+
+### Work items
+- [x] Extend `claude_test/eval_segmenttest.py` to also write a CSV
+- [x] Generate `segmenttest_results.csv` at the repo root
+- [ ] GitHub issue register
+- [ ] Commit and push
+- [ ] GitHub issue update
+
+---
+
+## README.md — 7-Segment Reader pipeline section
+
+### Background
+User asked to document the `7segment_reader.py` pipeline in `README.md`
+using the step-by-step debug images (strict mask, loose mask, decoded
+overlay) generated for `SegmentTest/2026-04-27-165316.jpg`. The
+existing README describes the CommonClaude conventions; the new
+section is appended without disturbing that content.
+
+### Work items
+- [x] Persist the four pipeline images (input + three masks) under
+      `docs/pipeline/` so they survive future `--debug` overwrites
+- [x] Append a `## 7-Segment Display Reader (7segment_reader.py)`
+      section to `README.md` between Cowork Session Rules and
+      References, embedding the four images and walking through each
+      stage (red score, STRICT + hole-fill, LOOSE, blob clustering,
+      italic-aware segment sampling, decimal probe)
+- [x] Link the SegmentTest accuracy CSV
+- [ ] GitHub issue register
+- [ ] Commit and push
+- [ ] GitHub issue update
+
+---
+
 > NOTE: Entries below this line reference issues on
 > `coport-uni/7SegmentReader`, not on `coport-uni/CommonClaude`.
 > The local repo was bootstrapped from CommonClaude conventions but

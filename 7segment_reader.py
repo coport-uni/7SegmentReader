@@ -47,9 +47,21 @@ SEGMENT_REGIONS = {
     "g": (0.30, 0.42, 0.70, 0.58),
 }
 
-ON_THRESHOLD = 0.35
+# A segment is considered "lit" when at least this fraction of its sample
+# region intersects the strict mask. The threshold is set well below the
+# 50/50 mark so that segments partially clipped by minor mis-alignment of
+# the slant model still register, while remaining comfortably above the
+# spurious bleed-in (typically <= 0.20) seen in OFF segments.
+ON_THRESHOLD = 0.28
 DIGIT_MIN_HEIGHT = 40
 DIGIT_MIN_AREA = 300
+
+# Italic slant of the LED font: tan(angle) of the vertical strokes.
+# Top-of-digit pixels are shifted to the right by SLANT * (h / 2);
+# bottom-of-digit pixels are shifted left by the same amount. The
+# segment sample regions follow this shear so vertical segments such
+# as b, c, e, f stay inside their region across the full digit height.
+ITALIC_SLANT = 0.25
 
 # Bright LED segments saturate the camera (R=G=B=255) so the strict
 # red-purity mask renders each segment as a hollow ring with a small
@@ -65,7 +77,11 @@ DOT_PROBE_X_RIGHT_PAD = 4
 DOT_PROBE_Y_TOP_INSET = 2
 DOT_PROBE_Y_BOTTOM_PAD = 8
 DOT_MIN_ABS = 12  # absolute pixel-count floor
-DOT_RATIO_OVER_MEDIAN = 2.0  # max-in-row must exceed median by this factor
+# The dot-bearing digit's probe must exceed this multiple of the row median.
+# Keep below 2.0 so that italic segment-c tails creeping into other digits'
+# probe windows -- which raise the median by a few pixels -- do not gate
+# out a clearly-present dot whose probe count is 1.5-1.9x the median.
+DOT_RATIO_OVER_MEDIAN = 1.5
 
 
 def red_score(bgr: np.ndarray) -> np.ndarray:
@@ -131,18 +147,61 @@ def cluster_into_two_rows(
     return top, bot
 
 
+def segment_ratio(
+    sub: np.ndarray,
+    region: tuple[float, float, float, float],
+    slant: float,
+) -> float:
+    """Fraction of strict-mask pixels inside an italic-corrected region.
+
+    Vertical segments (b, c, e, f) are sheared per row so each row
+    follows the italic vertical stroke. Horizontal segments (a, d, g)
+    are wider than they are tall; the bar itself stays horizontal in
+    italic fonts and is only translated, so the whole sample rectangle
+    is shifted by the slant computed at the region's vertical centre.
+    Per-row shearing of a horizontal sample would push its right edge
+    into adjacent segments and trigger false positives (e.g. digit 4
+    picking up segment b through region a).
+    """
+    h, w = sub.shape
+    x0r, y0r, x1r, y1r = region
+    y0 = max(0, int(y0r * h))
+    y1 = min(h, max(int(y1r * h), y0 + 1))
+    is_horizontal = (x1r - x0r) > (y1r - y0r)
+    if is_horizontal:
+        y_center_norm = (y0r + y1r) / 2
+        shift_norm = slant * (0.5 - y_center_norm)
+        sx0 = max(0, int((x0r + shift_norm) * w))
+        sx1 = min(w, max(int((x1r + shift_norm) * w), sx0 + 1))
+        if sx0 >= sx1:
+            return 0.0
+        region_pixels = sub[y0:y1, sx0:sx1]
+        if region_pixels.size == 0:
+            return 0.0
+        return float((region_pixels > 0).sum()) / region_pixels.size
+    on = 0
+    total = 0
+    for y in range(y0, y1):
+        shift = slant * (h / 2 - y)
+        sx0 = int(x0r * w + shift)
+        sx1 = int(x1r * w + shift)
+        sx0 = max(0, sx0)
+        sx1 = min(w, max(sx1, sx0 + 1))
+        if sx0 >= sx1:
+            continue
+        row = sub[y, sx0:sx1]
+        on += int((row > 0).sum())
+        total += sx1 - sx0
+    return on / total if total > 0 else 0.0
+
+
 def decode_digit(strict: np.ndarray, x: int, y: int, w: int, h: int) -> str:
     if w < h * 0.35:
         return "1"
     sub = strict[y : y + h, x : x + w]
     pattern: list[int] = []
     for seg in ("a", "b", "c", "d", "e", "f", "g"):
-        x0r, y0r, x1r, y1r = SEGMENT_REGIONS[seg]
-        sx0, sy0 = int(x0r * w), int(y0r * h)
-        sx1 = max(int(x1r * w), sx0 + 1)
-        sy1 = max(int(y1r * h), sy0 + 1)
-        region = sub[sy0:sy1, sx0:sx1]
-        ratio = float((region > 0).sum()) / region.size if region.size else 0.0
+        ratio = segment_ratio(sub, SEGMENT_REGIONS[seg], ITALIC_SLANT)
         pattern.append(int(ratio >= ON_THRESHOLD))
     digit = SEGMENT_TO_DIGIT.get(tuple(pattern))
     return str(digit) if digit is not None else "?"
